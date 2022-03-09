@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+
+  db:
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: tripscrud
+      POSTGRES_PASSWORD: password
+
+  app:
+    build: ./crud
+    volumes:
+      - ./crud:/crud
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
