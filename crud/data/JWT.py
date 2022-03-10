@@ -7,9 +7,7 @@ from . import models, database, schemas
 from data.utils import OAuth2PasswordBearerWithCookie
 
 
-router = APIRouter(
-    tags=['Authentication']
-)
+router = APIRouter(tags=["Authentication"])
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
@@ -29,7 +27,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)
+):
     if not token:
         return None
     credentials_exception = HTTPException(
@@ -52,11 +52,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 def check_if_active_user(current_user: schemas.User = Depends(get_current_user)):
     if not current_user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive User")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive User"
+        )
     return current_user
 
 
 def check_if_superuser(current_user: schemas.User = Depends(get_current_user)):
     if not current_user.is_admin:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated as admin.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated as admin.",
+        )
     return current_user

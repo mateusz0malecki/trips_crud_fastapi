@@ -4,19 +4,19 @@ from sqlalchemy.orm import relationship
 
 
 class Trip(Base):
-    __tablename__ = 'trips'
+    __tablename__ = "trips"
     trip_id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     email = Column(String(100))
     description = Column(String(200))
     completeness = Column(Boolean)
     contact = Column(Boolean)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
+    user_id = Column(Integer, ForeignKey("users.user_id"))
 
     creator = relationship("User", back_populates="trips")
 
     def __repr__(self):
-        return '<id: {}, name: {}>'.format(self.trip_id, self.name)
+        return "<id: {}, name: {}>".format(self.trip_id, self.name)
 
     @staticmethod
     def get_all_trips(db):
@@ -32,7 +32,7 @@ class Trip(Base):
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     user_id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100))
     email = Column(String(100))
@@ -43,7 +43,7 @@ class User(Base):
     trips = relationship("Trip", back_populates="creator")
 
     def __repr__(self):
-        return '<id: {}, name: {}>'.format(self.user_id, self.name)
+        return "<id: {}, name: {}>".format(self.user_id, self.name)
 
     @staticmethod
     def get_all_users(db):

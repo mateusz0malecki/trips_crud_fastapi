@@ -11,6 +11,17 @@ class User(BaseModel):
     is_admin: bool = False
 
 
+class NewUser(BaseModel):
+    name: str
+    email: str
+    password: str
+    is_active: bool = True
+    is_admin: bool = False
+
+    class Config:
+        orm_mode = True
+
+
 class ShowUser(BaseModel):
     name: str
     email: str
