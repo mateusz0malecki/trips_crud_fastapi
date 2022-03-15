@@ -7,11 +7,7 @@ SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@db/tripscrud"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
-if not database_exists(engine.url):
-    create_database(engine.url)
-
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
 

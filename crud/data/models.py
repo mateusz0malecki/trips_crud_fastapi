@@ -34,8 +34,8 @@ class Trip(Base):
 class User(Base):
     __tablename__ = "users"
     user_id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
-    email = Column(String(100))
+    name = Column(String(100), unique=True)
+    email = Column(String(100), unique=True)
     password = Column(Text)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)

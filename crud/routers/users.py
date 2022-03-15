@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Form, Response
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from data import models, schemas
 from data.database import get_db
 from data.hash import Hash
 from data.JWT import check_if_active_user, check_if_superuser
-
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -20,9 +20,7 @@ async def users(
     return all_users
 
 
-@router.post(
-    "/", response_model=schemas.ShowUser, status_code=status.HTTP_201_CREATED
-)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def new_user(
     request: schemas.NewUser,
     db: Session = Depends(get_db),
@@ -35,35 +33,13 @@ async def new_user(
         is_active=request.is_active,
         is_admin=request.is_admin,
     )
-
-    cursor = db.query(models.User).filter(models.User.name == created_user.name).count()
-    is_user_name_unique = cursor == 0
-
-    cursor = (
-        db.query(models.User).filter(models.User.email == created_user.email).count()
-    )
-    is_user_email_unique = cursor == 0
-
-    message = None
-    if request.name == "":
-        message = "Username cannot be empty"
-    elif request.email == "":
-        message = "Email cannot be empty"
-    elif request.password == "":
-        message = "Password cannot be empty"
-    elif not is_user_name_unique:
-        message = 'User with the name "{}" already exists'.format(created_user.name)
-    elif not is_user_email_unique:
-        message = 'User with the email "{}" already exists'.format(created_user.email)
-
-    if not message:
+    try:
         db.add(created_user)
         db.commit()
         db.refresh(created_user)
         return created_user
-    else:
-        message = "Correct error: {}".format(message)
-        return message
+    except IntegrityError as e:
+        return {"message": "Given username or email is already used.", "error": e}
 
 
 @router.get(
@@ -87,7 +63,6 @@ async def get_user(
 
 @router.put(
     "/{user_id}",
-    response_model=schemas.ShowUser,
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def edit_user(
@@ -102,7 +77,6 @@ async def edit_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with the id {user_id} not found.",
         )
-
     message = None
     if request.email == "":
         message = "Email cannot be empty"
@@ -110,14 +84,17 @@ async def edit_user(
         message = "Password cannot be empty"
 
     if not message:
-        user_to_edit.update(
-            {
-                "email": request.email,
-                "password": Hash.get_password_hash(request.password),
-            }
-        )
-        db.commit()
-        return user_to_edit.first()
+        try:
+            user_to_edit.update(
+                {
+                    "email": request.email,
+                    "password": Hash.get_password_hash(request.password),
+                }
+            )
+            db.commit()
+            return user_to_edit.first()
+        except IntegrityError as e:
+            return {"message": "Given username or email is already used.", "error": e}
     else:
         message = "Correct error: {}".format(message)
         return message
