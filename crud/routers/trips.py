@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Form, Response
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from typing import List
 from sqlalchemy.orm import Session
 
@@ -57,7 +57,7 @@ async def get_trip(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authenticated."
         )
-    return {"template": "edit_trip.html", "trip": trip_to_edit.first()}
+    return trip_to_edit.first()
 
 
 @router.put(
