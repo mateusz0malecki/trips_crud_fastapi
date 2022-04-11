@@ -1,8 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, status
 
-from data.database import engine
-from data import models
 from routers import users, trips, auth
 
 

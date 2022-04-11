@@ -7,3 +7,5 @@ python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
 alembic
+pytest
+requests
